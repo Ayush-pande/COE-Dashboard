@@ -1,0 +1,2 @@
+# This file points the external services used by the application to the Jenkins slave where WireMock runs.
+#AddExtSvc

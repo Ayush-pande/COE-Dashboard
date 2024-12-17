@@ -1,0 +1,83 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+		<artifactId>coe-dashboard-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../coe-dashboard-parent</relativePath>
+	</parent>
+	<artifactId>coe-dashboard-component-tests</artifactId>
+	<name>${project.groupId}:${project.artifactId}</name>
+
+	<properties>
+	    <argLine>--illegal-access=permit</argLine>
+
+        <version.org.scala-lang.scala-library />
+        <version.org.scala-lang.scala-reflect />
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+			<artifactId>coe-dashboard-exe</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+			<artifactId>coe-dashboard-client-kit</artifactId>
+		</dependency>
+
+		<dependency>
+            <groupId>com.amdocs.msbase</groupId>
+            <artifactId>msb-component-tests</artifactId>
+        </dependency>
+
+		<dependency>
+            <groupId>com.amdocs.msnext</groupId>
+			<artifactId>msnext-boot-full-runtime-dependencies</artifactId>
+            <type>pom</type>
+			<scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.amdocs.msnext</groupId>
+                    <artifactId>dropwizard-metrics-plugin</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+                <!-- These parameters enable extracting a Python file used during the CI -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <artifactItems>
+                        <artifactItem>
+                            <groupId>com.amdocs.msbase</groupId>
+                            <artifactId>msb-component-tests</artifactId>
+                            <overWrite>true</overWrite>
+                            <includes>scripts/*.py</includes>
+                        </artifactItem>
+                    </artifactItems>
+                </configuration>
+            </plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+        <profile>
+            <!-- Disable these tests in the Single-CI "Unit" phase.
+                "ci" is the name of the profile use in "Build and Unit Tests"
+                (under `variables.build_profiles.value`)
+            -->
+            <id>ci</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+        </profile>
+    </profiles>
+</project>

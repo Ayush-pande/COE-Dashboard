@@ -1,0 +1,89 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+		<artifactId>coe-dashboard-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../coe-dashboard-parent</relativePath>
+	</parent>
+	<artifactId>coe-dashboard-tests</artifactId>
+	<name>${project.groupId}:${project.artifactId}</name>
+
+	<properties>
+	    <argLine>--illegal-access=permit</argLine>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- Micro service dependencies -->
+		<dependency>
+			<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+			<artifactId>coe-dashboard-exe</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+			<artifactId>coe-dashboard-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+			<artifactId>coe-dashboard-autolog</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+			<artifactId>coe-dashboard-gateways</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+			<artifactId>coe-dashboard-internationalization</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+			<artifactId>coe-dashboard-persistence</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+			<artifactId>coe-dashboard-resources</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+			<artifactId>coe-dashboard-services</artifactId>
+		</dependency>
+		<!-- MSB/MSNext -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.vaadin.external.google</groupId>
+                    <artifactId>android-json</artifactId>
+                </exclusion>
+            </exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.amdocs.msnext</groupId>
+			<artifactId>msnext-boot-test-starter</artifactId>
+			<version>1.4.0.RELEASE</version>
+			<type>pom</type>
+		</dependency>
+
+		<!-- Support for Fabric8 -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-netflix-core</artifactId>
+		</dependency>
+
+
+
+	</dependencies>
+	<build>
+		<!-- Add additional plugins here -->
+		<plugins>
+		</plugins>
+	</build>
+</project>

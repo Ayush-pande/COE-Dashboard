@@ -1,0 +1,9 @@
+module:
+  name: core-coe-dashboard
+  requires: 
+    - coe-dashboard-gen
+  base-packages: 
+    - com.amdocs.digital.ms.coe.dashboard
+  resources:
+    - core-coe-dashboard-config.yaml
+    - security/rbac-roles-config.yaml

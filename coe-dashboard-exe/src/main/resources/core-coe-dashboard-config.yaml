@@ -1,0 +1,116 @@
+
+
+################################################################################
+#                            Application Settings                              #
+################################################################################
+
+server:
+  port: ${PLATFORM_SERVER_PORT}
+  
+#External services - Add URIs of required services here - for dev purpose - May get replaced with service discovery
+services:
+
+#Logging
+logging:
+  level:
+    org:
+      springframework: WARN
+#        web: 'DEBUG'
+#        context: 'DEBUG'
+# make TRACE to test full autolog
+      apache: WARN
+    com:
+      amdocs:
+        digital:
+          ms: 'WARN'
+
+spring:
+  application:
+    name: coe-dashboard-ms
+  main:
+    allow-bean-definition-overriding: true
+#disable talking to zipkin server
+  zipkin:
+    baseUrl: http://zipkin-service:9411
+    sender:
+      type: web
+    encoder: json-v1
+    enabled: true
+#Messages
+  messages:
+    basename: 'resources-messages/resources-messages, services-messages/services-messages'
+#    cache-seconds: -1
+#    encoding: UTF-8
+#Async messaging
+  cloud:
+    stream:
+      defaultBinder: kafka
+      bindings:
+        Dashboard_publish:
+          destination: Dashboard
+          contentType: application/json
+          producer:
+            partitionCount: 1
+            partitionKeyExtractorClass: com.amdocs.msb.asyncmessaging.message.resource.ResourcesPartitionKeyExtractor
+        Dashboard_Resources_publish:
+          destination: Dashboard_Resources
+          contentType: application/json
+          producer:
+            partitionCount: 1
+            partitionKeyExtractorClass: com.amdocs.msb.asyncmessaging.message.resource.ResourcesPartitionKeyExtractor
+      enabled: false
+
+#Enable it only if needed when enabling kafka      
+  sleuth:
+    sampler:
+      probability: 0.1
+    rxjava:
+      schedulers:
+        ignoredthreads: '^cb-computations.*$'
+
+feign:
+  hystrix:
+    enabled: true
+
+#Currently Hystrix timeout is set to 30 seconds for testing. Not optimal for production use.
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: "SEMAPHORE"
+          thread:
+            timeoutInMilliseconds: "30000"
+
+#histogram metrics
+management:
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http: true #should be removed with adoption of MsNext 2.4
+        hystrix: true
+  health:
+    binders:
+      enabled: false
+  endpoint:
+    health:
+      show-details: NEVER
+#disable security for now.
+security:
+  basic:
+    enabled: false
+    
+#Internationalization
+com:
+  amdocs:
+    digital:
+      ms:
+        #single value
+        default-locale: 'en-US'
+        #comma separated list
+        supported-locales: 'en-US'   
+    msnext:
+      root:
+        level:
+          appender:
+            ref: json

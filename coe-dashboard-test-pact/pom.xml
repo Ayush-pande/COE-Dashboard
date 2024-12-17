@@ -1,0 +1,46 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>coe-dashboard-test-pact</artifactId>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+		<artifactId>coe-dashboard-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../coe-dashboard-parent</relativePath>
+	</parent>
+
+	<properties>
+		<!-- MS Specific -->
+		
+		<!-- Generic, i.e. Interchangeable between MSs, from this point down -->
+		<pactBrokerProtocol>http</pactBrokerProtocol>
+		<pactBrokerHost>ilvpbg2351.corp.amdocs.com</pactBrokerHost>
+		<pactBrokerPort>31000</pactBrokerPort>
+		<pactBrokerUrl>${pactBrokerProtocol}://${pactBrokerHost}:${pactBrokerPort}</pactBrokerUrl>
+		<providerStateBaseFilePath>approved</providerStateBaseFilePath>
+		
+		<version.arquillian_core>1.1.13.Final</version.arquillian_core>
+		<version.io.fabric8.fabric8-arquillian>2.3.7</version.io.fabric8.fabric8-arquillian>
+		<version.io.fabric8.kubernetes-client>2.6.3</version.io.fabric8.kubernetes-client>
+		<version.com.squareup.okhttp3.okhttp>3.8.1</version.com.squareup.okhttp3.okhttp>
+	</properties>
+	
+	<modules>
+		<module>pact-consumer</module>
+	</modules>
+	
+	<profiles>
+    <profile>
+     <id>include-pact</id>
+     <modules>
+        <module>mock-external-services</module>
+        <module>pact-provider</module>
+     </modules>
+  </profile>
+  </profiles>
+	
+</project>

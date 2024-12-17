@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+    <artifactId>coe-dashboard-reactor</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>${project.groupId}:${project.artifactId}</name>
+
+   <modules>
+        <module>coe-dashboard-parent</module>
+        <module>coe-dashboard-aspect-parent</module>
+        <module>coe-dashboard-api</module>
+        <module>coe-dashboard-autolog</module>
+        <module>coe-dashboard-client-kit</module>
+		<module>coe-dashboard-resources</module>
+		<module>coe-dashboard-services</module>
+        <module>coe-dashboard-persistence</module>
+        <module>coe-dashboard-gateways</module>
+		<module>coe-dashboard-internationalization</module>
+        <module>coe-dashboard-exe</module>
+        <module>coe-dashboard-test-pact</module>
+        <module>coe-dashboard-tests</module>
+        <module>coe-dashboard-component-tests</module>
+    </modules>
+
+</project>

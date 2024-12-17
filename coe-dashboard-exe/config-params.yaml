@@ -1,0 +1,15 @@
+bu_name: digital
+externalServices: []
+generateRepository: true
+kafkaClusterName: kafka-d1
+ms_name: coe-dashboard
+ms_size: ""
+skip_async_message_layer: true
+skip_gateway_layer: false
+skip_persistence_layer: false
+couchBaseName: couchbase-service-6
+couchbaseClusterName: couchbase-service
+skip_data_consistency_layer: false
+topics: []
+legacyTopics: true
+resourceTopics: true

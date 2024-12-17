@@ -1,0 +1,24 @@
+com:
+  amdocs:
+    msnext:
+      securityjwt:
+        jwt-validation:
+          validation-policies:
+            global:
+              exclude-predicates: signature
+
+spring:
+  cloud:
+    stream:
+      enabled: false
+
+couchbase:
+  cluster:
+    clusterUrl: ${COUCHBASE_SERVICE_NAME}
+  providers:
+    cbProvider:
+      username: ${couchbaseBuckets.coe_dashboard.user}
+      password: ${couchbaseBuckets.coe_dashboard.password}
+      bucketName: 'com.amdocs.digital.ms.coe.dashboard'
+      bucketWaitUntilReadySec: 0
+      clusterWaitUntilReadySec: 0

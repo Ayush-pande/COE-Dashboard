@@ -1,0 +1,17 @@
+---
+pull:
+  registry: "@docker.pull.registry@"
+  username: "@docker.pull.username@"
+  password: "@docker.pull.password@"
+  secret: "@image.pull.secret@"
+testing:
+  registry: "@docker.testing.registry@"
+  username: "@docker.testing.username@"
+  password: "@docker.testing.password@"
+release:
+  registry: "@docker.release.registry@"
+  username: "@docker.release.username@"
+  password: "@docker.release.password@"
+image:
+  name: "@docker.image.name@"
+  version: "@project.version@"

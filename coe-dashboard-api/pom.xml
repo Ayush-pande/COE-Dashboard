@@ -1,0 +1,383 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+        <artifactId>coe-dashboard-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../coe-dashboard-parent</relativePath>
+    </parent>
+    <artifactId>coe-dashboard-api</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <properties>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>${project.artifactId}</artifactId>
+        <version>${project.version}</version>
+        <resource.dir>${project.basedir}/src/main/resources</resource.dir>
+        <external.api.dir>${resource.dir}/swagger/external-api</external.api.dir>
+        <swagger.file>${project.basedir}/src/main/resources/swagger/coe-dashboard-management.yaml</swagger.file>
+        <!-- properties for codegen -->
+        <!-- package names for the coe-dashboard -->
+        <api-package>com.amdocs.digital.ms.coe.dashboard.resources.interfaces</api-package>
+        <model-package>com.amdocs.digital.ms.coe.dashboard.resources.models</model-package>
+
+        <!-- Properties for generating doc using swagger2markup -->
+        <!-- The version is in this file instead of parent, since we have not decided
+            which doc tool to use for html doc generation. Once this decision is made
+            this version information should be moved to MSB -->
+        <swagger2markup.version>1.3.3</swagger2markup.version>
+        <asciidoc.version>2.2.2</asciidoc.version>
+
+        <adoc.file>coe-dashboard-management</adoc.file>
+        <generated.asciidoc.directory>${project.build.directory}/asciidoc/generated</generated.asciidoc.directory>
+        <asciidoctor.html.output.directory>${project.build.directory}/asciidoc/html</asciidoctor.html.output.directory>
+        <asciidoctor.input.directory>${project.basedir}/src/main/resources/docs</asciidoctor.input.directory>
+
+        <confluence.url>http://confluence/rest/api</confluence.url>
+        <!-- base64 encoding of user:password -->
+        <confluence.login.credentials>base64 encoding of user:password</confluence.login.credentials>
+        <!-- OMM = Digital Incubation Space. Find it in the URL, or look it up with the rest api-->
+        <confluence.space.key>OMM</confluence.space.key>
+        <!-- 25274042 = Page id of the Micro Service APIs page. Look it up with the rest api -->
+        <confluence.parent.page.id>25274042</confluence.parent.page.id>
+        <!-- Pagination mode to use: [single, category, individual] -->
+        <confluence.pagination.mode>single</confluence.pagination.mode>
+        <confluence.swagger.yaml>coe-dashboard-management.yaml</confluence.swagger.yaml>
+        <confluence.doc.title.prefix>Coe - </confluence.doc.title.prefix>
+        <confluence.doc.title>Dashboard</confluence.doc.title>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.amdocs.msbase</groupId>
+            <artifactId>msb-privacy-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.amdocs.msbase</groupId>
+            <artifactId>msb-resource-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.amdocs.msbase</groupId>
+            <artifactId>msb-swagger-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.amdocs.msbase</groupId>
+            <artifactId>msb-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Dependencies for external API's -->
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign.form</groupId>
+            <artifactId>feign-form</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.vaadin.external.google</groupId>
+                    <artifactId>android-json</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.amdocs.msnext</groupId>
+            <artifactId>spring-base-plugin</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.amdocs.msnext</groupId>
+            <artifactId>security-jwt-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+             <groupId>com.amdocs.msbase</groupId>
+             <artifactId>msb-privacy-logging</artifactId>
+        </dependency>
+        <!-- Needed for micrometer hystrix monitoring -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-netflix-core</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.build.directory}/generated-sources/swagger/src/main/resources</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- Generate Springboot API's from swagger YAML file. -->
+            <plugin>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-stubs</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${swagger.file}</inputSpec>
+                            <language>spring</language>
+                            <templateDirectory>src/main/resources</templateDirectory>
+                            <configOptions>
+                                <dateLibrary>java8</dateLibrary>
+                                <sourceFolder>src/main/java</sourceFolder>
+                                <interfaceOnly>true</interfaceOnly>
+                            </configOptions>
+                            <modelPackage>${model-package}</modelPackage>
+                            <apiPackage>${api-package}</apiPackage>
+                        </configuration>
+                    </execution>
+                    <!--  Run Swagger again, this time targeting our Amdocs-specific "amdocs-msb-spring"
+                          language, which adds a single "Impl" file to the Spring Boot code that was already
+                          emitted by the plugin above. -->
+                    <execution>
+                        <id>generate-amdocs-stubs</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${swagger.file}</inputSpec>
+                            <language>amdocs-msb-spring</language>
+                            <modelPackage>${model-package}</modelPackage>
+                            <apiPackage>${api-package}</apiPackage>
+                            <configOptions>
+                                <validateSwagger>false</validateSwagger>
+                                <generatePrivacyAnnotations>true</generatePrivacyAnnotations>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Generate doc using swaggger2markup plugin -->
+            <!-- First, use the swagger2markup plugin to generate asciidoc -->
+            <plugin>
+                <groupId>io.github.swagger2markup</groupId>
+                <artifactId>swagger2markup-maven-plugin</artifactId>
+                <version>${swagger2markup.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>io.github.swagger2markup</groupId>
+                        <artifactId>swagger2markup-import-files-ext</artifactId>
+                        <version>${swagger2markup.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>io.github.swagger2markup</groupId>
+                        <artifactId>swagger2markup-spring-restdocs-ext</artifactId>
+                        <version>${swagger2markup.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <swaggerInput>${swagger.file}</swaggerInput>
+                    <outputDir>${generated.asciidoc.directory}</outputDir>
+                    <config>
+                        <swagger2markup.swaggerMarkupLanguage>ASCIIDOC</swagger2markup.swaggerMarkupLanguage>
+                        <!-- To group by tags, a top-level tags property is needed in the YAML
+                            (near the basepath) -->
+                        <!-- swagger2markup.pathsGroupedBy>TAGS</swagger2markup.pathsGroupedBy -->
+                        <swagger2markup.generatedExamplesEnabled>true</swagger2markup.generatedExamplesEnabled>
+                        <swagger2markup.anchorPrefix>SC_</swagger2markup.anchorPrefix>
+                    </config>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>convertSwagger2markup</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Run the generated asciidoc through Asciidoctor to generate other
+                documentation types, such as PDFs or HTML5 -->
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>${asciidoc.version}</version>
+                <!-- Configure generic document generation settings -->
+                <configuration>
+                    <sourceDirectory>${asciidoctor.input.directory}</sourceDirectory>
+                    <sourceDocumentName>${adoc.file}.adoc</sourceDocumentName>
+                    <attributes>
+                        <doctype>book</doctype>
+                        <toc>left</toc>
+                        <toclevels>3</toclevels>
+                        <numbered></numbered>
+                        <hardbreaks></hardbreaks>
+                        <sectlinks></sectlinks>
+                        <sectanchors></sectanchors>
+                        <generated>${generated.asciidoc.directory}</generated>
+                    </attributes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>output-html</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>html5</backend>
+                            <outputDirectory>${asciidoctor.html.output.directory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <!-- Make the generated classes folder as a source folder -->
+                    <execution>
+                        <id>add-generated-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/swagger/src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <!-- Push the API to maven repo. -->
+                                <artifact>
+                                    <file>${swagger.file}</file>
+                                    <type>yaml</type>
+                                </artifact>
+                                <!-- Push the generated html to maven repo. -->
+                                <artifact>
+                                    <file>${asciidoctor.html.output.directory}/${adoc.file}.html</file>
+                                    <type>html</type>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.slkdev.swagger.confluence</groupId>
+                        <artifactId>swagger-confluence-cli-all</artifactId>
+                        <version>2.2-RELEASE</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <goals>
+                          <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>java</executable>
+                    <workingDirectory>${basedir}/src/main/resources/swagger</workingDirectory>
+                    <arguments>
+                        <argument>-jar</argument>
+                        <argument>${settings.localRepository}/net/slkdev/swagger/confluence/swagger-confluence-cli-all/2.2-RELEASE/swagger-confluence-cli-all-2.2-RELEASE.jar</argument>
+                        <argument>-u</argument>
+                        <argument>${confluence.url}</argument>
+                        <argument>-b</argument>
+                        <argument>${confluence.login.credentials}</argument>
+                        <!-- Include table of contents on single page mode -->
+                        <argument>-i</argument>
+                        <argument>true</argument>
+                        <!-- Prefix to use for article titles to ensure uniqueness -->
+                        <!-- boolean flag to indicate whether to generate numeric prefixes for titles -->
+                        <argument>-g</argument>
+                        <argument>true</argument>
+                        <argument>-k</argument>
+                        <argument>${confluence.space.key}</argument>
+                        <argument>-a</argument>
+                        <argument>${confluence.parent.page.id}</argument>
+                        <argument>-m</argument>
+                        <argument>${confluence.pagination.mode}</argument>
+                        <argument>-s</argument>
+                        <argument>${confluence.swagger.yaml}</argument>
+                        <argument>-p</argument>
+                        <argument>${confluence.doc.title.prefix}</argument>
+                        <argument>-t</argument>
+                        <argument>${confluence.doc.title}</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+       <profiles>
+               <profile>
+                       <id>deploy_files</id>
+                       <build>
+                               <plugins>
+                                       <!-- Deploy tar file and pom.xml of current module -->
+                                       <plugin>
+                                               <artifactId>maven-deploy-plugin</artifactId>
+                                               <executions>
+                                                       <execution>
+                                                               <id>deploy-file</id>
+                                                               <phase>deploy</phase>
+                                                               <goals>
+                                                                       <goal>deploy-file</goal>
+                                                               </goals>
+                                                               <configuration>
+                                                                       <file>${swagger.file}</file>
+                                                                       <pomFile>pom.xml</pomFile>
+                                                                       <repositoryId>${project.distributionManagement.repository.id}</repositoryId>
+                                                                       <url>${project.distributionManagement.repository.url}</url>
+                                                                       <packaging>yaml</packaging>
+                                                               </configuration>
+                                                       </execution>
+                                               </executions>
+                                       </plugin>
+                               </plugins>
+                       </build>
+               </profile>
+       </profiles>
+</project>

@@ -1,0 +1,15 @@
+---
+artifactsRepository:
+  host: "@docker.pull.registry@"
+  secret: "@image.pull.secret@"
+jobs:
+  helmServiceAccount: jenkins
+jacoco:
+  enabled: true
+apigw:
+  enabled: false
+pki:
+  sslenabled: false
+runtimeContainerInfo:
+  javaOptions:
+    unsupportedParameters: "-Dcom.amdocs.msnext.securityjwt.jwt-validation.validation-policies.global.exclude-predicates=signature "

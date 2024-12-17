@@ -1,0 +1,984 @@
+swagger: "2.0"
+info:
+  description: API for managing employees and admin functionalities such as login, registration, and CRUD operations.
+  version: "1.0.0"
+  title: Admin and Employee Management API
+host: localhost:8080
+basePath: /api/v1
+schemes:
+  - http
+paths:
+  /admin/:
+    get:
+      tags:
+        - Admin
+      summary: Test endpoint for admin
+      description: Simple endpoint to check if the API is working.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: API is working
+          schema:
+            type: string
+            example: "Working"
+
+  /admin/login:
+    post:
+      tags:
+        - Admin
+      summary: Admin login
+      description: Authenticates an admin and returns a JWT token.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: admin
+          description: Admin login credentials
+          required: true
+          schema:
+            type: object
+            properties:
+              adminEmail:
+                type: string
+              adminPassword:
+                type: string
+      responses:
+        200:
+          description: Admin successfully logged in
+          schema:
+            type: string
+        401:
+          description: Unauthorized, invalid credentials
+          schema:
+            type: string
+            example: ""
+        400:
+          description: Bad request
+          schema:
+            type: string
+            example: "Invalid"
+
+  /admin/getEmp/{input}:
+    get:
+      tags:
+        - Admin
+      summary: Get employee details by email or other input
+      description: Retrieves employee details based on the given input (email or other criteria).
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: input
+          description: The input value (e.g., employee email or ID).
+          required: true
+          type: string
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully retrieved employee details
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Employee'
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+            
+        400:
+          description: Bad request
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+
+  /admin/getById/{id}:
+    get:
+      tags:
+        - Admin
+      summary: Get employee details by ID
+      description: Retrieves an employee's details based on the employee ID.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          description: Employee ID
+          required: true
+          type: string
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully retrieved employee details
+          schema:
+            $ref: '#/definitions/Employee'
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: object
+            example: {}
+        400:
+          description: Bad request
+          schema:
+            type: object
+            example: {}
+           
+               
+
+  /admin/add:
+    post:
+      tags:
+        - Admin
+      summary: Add a new employee
+      description: Adds a new employee to the system.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+        - in: body
+          name: employee
+          description: Employee details to add
+          required: true
+          schema:
+            $ref: '#/definitions/Employee'
+      responses:
+        200:
+          description: Successfully added employee
+          schema:
+            $ref: '#/definitions/Employee'
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: object
+            example: {}
+          
+        400:
+          description: Bad request
+          schema:
+            type: object
+            example: {}
+          
+
+  /admin/update:
+    put:
+      tags:
+        - Admin
+      summary: Update employee details
+      description: Updates the details of an existing employee.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+        - in: body
+          name: employee
+          description: Employee details to update
+          required: true
+          schema:
+            $ref: '#/definitions/Employee'
+      responses:
+        200:
+          description: Successfully updated employee details
+          schema:
+            $ref: '#/definitions/Employee'
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: object
+            example: {}
+        400:
+          description: Bad request
+          schema:
+            type: object
+            example: {}
+  /admin/getApprovals:
+    get:
+      tags:
+        - Admin
+      summary: Get approval
+      description: To approve an employee to register
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully retrieved all employee details
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Employee'
+           
+            
+            
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+        400:
+          description: Bad request
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+            
+  /admin/getDomain:
+    get:
+      tags:
+        - Admin
+      summary: Get domain
+      description: To  get the domain of an employee
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully retrieved all employee details
+          schema:
+            type: array
+            items:
+              type: string
+           
+            
+            
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+        400:
+          description: Bad request
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+            
+  /admin/getSkills:
+    get:
+      tags:
+        - Admin
+      summary: Get skills
+      description: This endpoint is to get all the skills of an employee
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+        
+      responses:
+        200:
+          description: Successfully retrieved all employee details
+          schema:
+            type: array
+            items:
+              type: string
+           
+            
+            
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+        400:
+          description: Bad request
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+      
+      
+
+  /admin/reject:
+    delete:
+      tags:
+        - Admin
+      summary: To reject the approval of an employee
+      description: By this endpoint admin can reject the approval of an employee
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+        - in: body
+          name: employee
+          description: Employee details to update
+          required: true
+          schema:
+            $ref: '#/definitions/Employee'
+      responses:
+        200:
+          description: Successfully updated employee details
+          schema:
+            $ref: '#/definitions/Employee'
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: object
+            example: {}
+        400:
+          description: Bad request
+          schema:
+            type: object
+            example: {}
+  /admin/getAllEmp:
+    get:
+      tags:
+        - Admin
+      summary: Get all employees
+      description: Retrieves a list of all employees.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully retrieved all employee details
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Employee'
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+        400:
+          description: Bad request
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+
+  /admin/delete:
+    delete:
+      tags:
+        - Admin
+      summary: Delete an employee
+      description: Deletes an employee from the system.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+        - in: body
+          name: employee
+          description: Employee details to delete
+          required: true
+          schema:
+            $ref: '#/definitions/Employee'
+      responses:
+        200:
+          description: Successfully deleted employee
+          schema:
+            type: string
+            example: "success"
+         
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: string
+            example: "invalid"
+        400:
+          description: Bad request
+          schema:
+            type: string
+            example: "error"
+
+  /employee/login:
+    post:
+      tags:
+        - Employee
+      summary: Employee login
+      description: Authenticates an employee and returns a JWT token along with employee details.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: employee
+          description: Employee login credentials
+          required: true
+          schema:
+            $ref: "#/definitions/Employee"
+            # type: object
+            # properties:
+            #   empEmail:
+            #     type: string
+            #   empPasswd:
+            #     type: string
+      responses:
+        200:
+          description: Employee successfully logged in, returns employee details and JWT token
+          schema:
+            $ref: '#/definitions/LoginResponse'
+        401:
+          description: Unauthorized (invalid credentials)
+          schema:
+            type: object
+            properties:
+              employee:
+                type: object
+                example: {}
+              token:
+                example: ""
+                
+        400:
+          description: Bad request          
+          schema:
+            type: object
+            properties:
+              employee:
+                type: object
+                example: {}
+              token:
+                example: ""
+
+  /employee/getEmp/{input}:
+    get:
+      tags:
+        - Employee
+      summary: Get employee details
+      description: Retrieves employee details based on the given input (email or other criteria).
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: input
+          description: The input value (e.g., employee email or ID).
+          required: true
+          type: string
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully retrieved employee details
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Employee'
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+            
+        400:
+          description: Bad request
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+            
+
+  /employee/getAllEmp:
+    get:
+      tags:
+        - Employee
+      summary: Get all employees
+      description: Retrieves a list of all employees.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully retrieved all employee details
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Employee'
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+            
+        400:
+          description: Bad request
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+            
+
+  /employee/getById/{id}:
+    get:
+      tags:
+        - Employee
+      summary: Get employee details by ID
+      description: Retrieves an employee's details based on the employee ID.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          description: Employee ID
+          required: true
+          type: string
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully retrieved employee details
+          schema:
+            $ref: '#/definitions/Employee'
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: object
+            example: {}
+        400:
+          description: Bad request
+          schema:
+            type: object
+            example: {}
+         
+          
+
+  /employee/register:
+    post:
+      tags:
+        - Employee
+      summary: Register a new employee
+      description: Registers a new employee and returns a JWT token if successful.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: employee
+          description: Employee details for registration
+          required: true
+          schema:
+            $ref: '#/definitions/Employee'
+      responses:
+        201:
+          description: Successfully registered employee
+          schema:
+            type: string
+            example: "success"
+        400:
+          description: Bad request
+          schema:
+            type: string
+            example: ""
+
+        401:
+          description: Unauthorized (invalid credentials)
+          schema:
+            type: string
+            example: ""
+            
+  /employee/reset-password:
+    post:
+      tags:
+        - Employee
+      summary: Reset Password 
+      description: Helps user to reset password
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+        - in: body
+          name: employee
+          description: Employee details
+          required: true
+          schema:
+            $ref: '#/definitions/Employee'
+        
+      responses:
+        200:
+          description: Successfully reset the password
+          schema:
+            type: string
+            example: "success"
+        403:
+          description: Forbidden
+          schema:
+            type: string
+            example: "Already Exists"
+        400:
+          description: Bad request
+          schema:
+            type: string
+            example: ""
+       
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: object
+            example: ""
+  /employee/getDomain:
+    get:
+      tags:
+        - Employee
+      summary: To get the domain list 
+      description: To get the domain list 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Successfully reset the password
+          schema:
+            type: array
+            items:
+              type: string
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+            
+        400:
+          description: Bad request
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+  /employee/getSkills:
+    get:
+      tags:
+        - Employee
+      summary: To get all the skills  
+      description: To get the Skill list
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Successfully reset the password
+          schema:
+            type: array
+            items:
+              type: string
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+            
+        400:
+          description: Bad request
+          schema:
+            type: array
+            items:
+              type: string
+            example: []
+  
+  /employee/forgot-password:
+    post:
+      tags:
+        - Employee
+      summary: Forgot Password 
+      description: Helps user to set a new password
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        
+        - in: body
+          name: employee
+          description: Employee details
+          required: true
+          schema:
+            $ref: '#/definitions/Employee'
+      responses:
+        200:
+          description: Successfully updated employee details
+          schema:
+            type: string
+            example: "success"
+        403:
+          description: Forbidden
+          schema:
+            type: string
+            example: "Email doesn't exist"
+        400:
+          description: Bad request
+          schema:
+            type: string
+            example: ""
+       
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: object
+            example: ""
+  /employee/update:
+    put:
+      tags:
+        - Employee
+      summary: Update employee details
+      description: Updates the details of an existing employee.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+        - in: body
+          name: employee
+          description: Employee details to update
+          required: true
+          schema:
+            $ref: '#/definitions/Employee'
+      responses:
+        200:
+          description: Successfully updated employee details
+          schema:
+            $ref: '#/definitions/Employee'
+        400:
+          description: Bad request
+          schema:
+            type: object
+            example: {}
+          
+        401:
+          description: Unauthorized (invalid JWT token)
+          schema:
+            type: object
+            example: {}
+  
+                
+     
+       
+    
+    
+
+definitions:
+  Employee:
+    type: object
+    properties:
+      empEmail:
+        type: string
+        description: Email of the employee
+      empPassword:
+        type: string
+        description: Password of the employee
+      empId:
+        type: string
+        description: Unique identifier for the employee
+      empName:
+        type: string
+        description: Name of the employee
+      empImage:
+        type: string
+        description: URL or base64-encoded image of the employee
+      currentAccount:
+        type: string
+        description: Current account the employee is associated with
+      supervisorName:
+        type: string
+        description: Supervisor's name in the account
+      empRole:
+        type: string
+        description: Role of the Employee (Designation)
+      empDesc:
+        type: string
+        description: Description to be added on the profile
+      amdocsExperience:
+        type: string
+        description: Amdocs experience (years or months)
+      totalExperience:
+        type: string
+        description: Total work experience (years or months)
+      amdocsJourney:
+        type: string
+        description: Amdocs journey (roles, growth, etc.)
+      functionalKnowledge:
+        type: array
+        items:
+          type: string
+        description: List of functional knowledge or domain expertise
+      primaryTechSkill:
+        description: List of primary tech skills (e.g., Java, AWS)
+        type: array
+        items:
+          type: string
+        
+      primaryProductSubdomain:
+        type: array
+        items:
+          type: string
+        description: List of primary product or subdomain areas
+      secondaryTechSkill:
+        type: array
+        items:
+          type: string
+        description: List of secondary tech skills (e.g., Python, SQL)
+      secondaryProduct:
+        type: array
+        items:
+          type: string
+        description: List of secondary product knowledge
+      devOpsKnowledge:
+        type: string
+        description: DevOps knowledge (tools, CI/CD, etc.)
+      mentoringAbility:
+        type: boolean
+        description: Whether the employee can mentor or lead 5-6 people
+        example: false
+      explorationInterest:
+        type: boolean
+        description: Whether the employee likes exploring new tools/tech
+        example: false
+      contributedToDesign:
+        type: boolean
+        description: Whether the employee has contributed to design/LLD/HLD
+        example: false
+      engagementActivityContribution:
+        type: boolean
+        description: Whether the employee can help in engagement activities
+        example: false
+      areaOfCriticalIssue:
+        type: string
+        description: Area of expertise in critical issues
+      productionSupport:
+        type: string
+        description: Experience with production support tasks
+      presentationSkills:
+        type: integer
+        description: Presentation skills on a scale of 1-5
+        minimum: 0
+        maximum: 5
+        example: 0
+      hobbiesSports:
+        type: string
+        description: Employee's hobbies or sports
+      additionalInfo:
+        type: string
+        description: Any additional information about the employee
+      approved:
+        type: boolean
+        description: Whether the employee is approved (e.g., for a project or role)
+
+  
+  
+  LoginResponse:
+    type: object
+    properties:
+      employee:
+        $ref: '#/definitions/Employee'
+      token:
+        type: string

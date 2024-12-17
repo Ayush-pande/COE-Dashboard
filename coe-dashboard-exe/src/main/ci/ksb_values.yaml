@@ -1,0 +1,27 @@
+serviceBrokerSSLEnabled: false
+backendServiceSSLEnabled: false
+backendServiceSSLEnabledWithClientAuth: false
+namespaceServiceBrokerScopeEnabled: true
+com:
+  amdocs:
+    servicebroker:
+      backendServiceConnections:
+        kafka-service-id:
+          name: kafka-service
+          description: service-description
+          bindable: true
+          instances_retrievable: true
+          bindings_retrievable: true
+          plan_updateable: true
+          kafka-plan-id: #plan ID e.g. QA, UAT, PROD
+            name: production
+            description: plan-description
+            replicationFactor: #Optional - the replication factor of the entire plan
+            free: true
+            #binding_retrievable: true
+            kafkaClusterConfigurations:
+              kafka-d1: # the logical name of the cluster
+                closetimeout: 10
+                operationtimeout: 10
+                kafkaurls: kafka-service:9092
+                zkurls: zookeeper-service:2181

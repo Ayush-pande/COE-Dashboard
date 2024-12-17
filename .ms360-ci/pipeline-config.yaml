@@ -1,0 +1,282 @@
+---
+id: MS configuration
+stages:
+    CI Init:
+        cloud:
+            name: kubernetes1
+            ms_ci_inherit_from_pod_template_name: ms360-maven-slave
+            central_ci_inherit_from_pod_template_name: ms360-maven-slave
+            central_ci_namespace: ci-automation
+            image_pull_secrets_for_jenkins_slave_pod:
+                nexus-illin5564-5000-pull-secret:
+                    credential_id: helm_nexus_correct_token
+                    image_registry_server_address: illin5564.corp.amdocs.com:5000
+                ms360-ci-slave-pull-secret:
+                    credential_id: helm_nexus_correct_token
+                    image_registry_server_address: illin5564.corp.amdocs.com:5000
+            helm:
+                url: http://illin3301.corp.amdocs.com:28080/nexus/content/repositories/PMX-ThirdParty-SW/com/amdocs/internal/helm/v3.5.2-linux-amd64/helm-v3.5.2-linux-amd64.tar.gz
+                helm_major_version: 3
+    Clone Sources:
+      terminate_on_failure: false
+      git:
+        repositories:
+          - display_name: settings.xml
+            git_url: ssh://git@bitbucket:7999/msb/ms360-settings.git
+            branch: master
+            credentials_id: single_ci_new
+            extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'settings']]
+    Load Configuration:
+      time_limit:
+        timeout: 5
+        unit: MINUTES
+      version_calculation:
+        ssh_credential_id: single_ci_new
+      variables:
+        MVN_CFG:
+            value: settings/cfg/settings.xml
+        HELM_CHART_NEXUS_URL:
+            value: http://illin5564.corp.amdocs.com:28080
+        HELM_CHART_NEXUS_CREDENTIAL_ID:
+            value:  helm_nexus_correct_token
+        HELM_CHART_NEXUS_REPO_NAME:
+            value: helm-release
+        HELM_CHART_STAGING_NEXUS_REPO_NAME:
+            value: helm-release
+        NEXUS_ADDRESS:
+            value: illin5225.corp.amdocs.com:8081
+        THIRD_PARTY_NEXUS_ADDRESS:
+            value: illin4261.corp.amdocs.com:28080
+        DOCKER_PROXY_PLATFORM:
+            value: illin4261.corp.amdocs.com:28090
+        MILCY_NEXUS:
+            value: http://illin4261.corp.amdocs.com:28080/repository/PLTO/com/amdocs/platform/ms-lifecycle-operator
+        MILCY_VERSION:
+            value: 1.17.4
+        KSB_NEXUS:
+            value: http://illin4261.corp.amdocs.com:28080/repository/PLTO/com/amdocs/platform/kafka-service-broker
+        KSB_VERSION:
+            value: 1.4.4
+        CSB_NEXUS:
+            value: http://illin4261.corp.amdocs.com:28080/repository/PLTO/com/amdocs/platform/couchbase-service-broker
+        CSB_VERSION:
+            value: 1.2.4
+        THIRD_PARTY_NEXUS_REPO_URL:
+            value: "http://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@${THIRD_PARTY_NEXUS_ADDRESS}/repository/PLATFORM_RELEASE_HELM/com/amdocs/platform"
+        COUCHBASE_VERSION:
+            value: 6.6.1
+        COUCHBASE_NAME:
+            value: couchbase-service-6
+        ZOO_KEEPER_VERSION:
+            value: 1.2.6
+        KAFKA_VERSION:
+            value: 1.4.4
+        CATALOG_ELASTIC_HOST:
+            value: ilvpbg1938.corp.amdocs.com
+        CATALOG_ELASTIC_CREDENTIAL_ID:
+            value: single_ms_ci_elastic_credentials
+        EMAIL_LIST:
+            value: someone@amdocs.com
+        DOCKER_RELEASE_REGISTRY:
+            value: illin5564.corp.amdocs.com:5000
+        SINGLE_CI_MICROSERVICE_NAME:
+            value: coe-dashboard
+
+    Build and Unit Tests:
+         time_limit:
+          timeout: 30
+         junit:
+          allow_empty_results: true
+          test_results: "**/target/surefire-reports/*.xml"
+         maven:
+           settings_file: ${MVN_CFG}
+           variables:
+             build_profiles:
+               value: ci
+               enable: true
+             group_id:
+               type: command
+               value: |-
+                         sh(script: "set +x; mvn -B -N -q exec:exec -Dexec.executable='echo' -Dexec.args='\${project.groupId}' -gs ${MVN_CFG} -f pom.xml 2>/dev/null ",returnStdout: true).trim()
+               enable: true
+    Create and Upload Helm Chart:
+      lint:
+         enable: false
+      nexus:
+         repository_manager_url: ${HELM_CHART_NEXUS_URL}
+         repository_credential_id: ${HELM_CHART_NEXUS_CREDENTIAL_ID}
+         repository_name: ${HELM_CHART_STAGING_NEXUS_REPO_NAME}
+    Create and Upload Image:
+      maven:
+        settings_file: ${MVN_CFG}
+    Deploy Test:
+      time_limit:
+        timeout: 30
+        unit: MINUTES
+      pre_steps:
+        - command: sh "kubectl apply -f ${SINGLE_CI_MICROSERVICE_NAME}-exe/target/ci/a3sSecret.yaml"
+          display_name: "kubectl a3s-secret"
+        - command: sh "oc apply -n ${SINGLE_CI_NAMESPACE} -f http://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@${NEXUS_ADDRESS}/repository/PSM/External_a3s-ilde9435_svc.yml"
+          display_name: "oc apply"
+        - command: sh "kubectl delete secret platform-pull-secret -n '${SINGLE_CI_NAMESPACE}' --ignore-not-found"
+          display_name: "kubectl delete"
+        - command: sh "kubectl apply -f ${SINGLE_CI_MICROSERVICE_NAME}-exe/target/ci/platformPullSecret.yaml"
+          display_name: "kubectl create"
+        - command: |-
+              def ciProp=readYaml file: "${SINGLE_CI_MICROSERVICE_NAME}-exe/target/ci/ci-properties.yaml"
+              def secret_name=ciProp.pull.secret
+              def username=ciProp.pull.username
+              def password=ciProp.pull.password
+              def pull_registry=ciProp.pull.registry
+              sh "kubectl delete secret $secret_name --ignore-not-found"
+              sh "kubectl create secret docker-registry $secret_name --docker-username=$username --docker-password=$password --docker-email=${EMAIL_LIST} --docker-server=$pull_registry; oc get secret $secret_name -o yaml > pull-secret.yaml"
+          display_name: "read_yaml"
+        - command: "archiveArtifacts allowEmptyArchive: true, artifacts: 'pull-secret.yaml'"
+          display_name: "archive_artifacts"
+        - command: sh "oc process -f http://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@${NEXUS_ADDRESS}/repository/PSM/secret-template.yaml |oc apply -f -"
+          display_name: "oc process"
+        - command: |-
+              sh "kubectl delete secret amdocs-nexus-pull-secret --ignore-not-found"
+              sh "kubectl apply -f ${SINGLE_CI_MICROSERVICE_NAME}-exe/target/ci/msnextPullSecret.yaml"
+          display_name: "create amdocs-nexus-pull-secret"
+      tiller:
+        tiller_version: v2.14.3
+        tiller_up_timeout: 300
+      deployment:
+        - release_name: ms-lifecycle-operator
+          chart_name: ms-lifecycle-operator
+          helm_repo_url: ${MILCY_NEXUS}
+          optional_params: --set image.repository=${DOCKER_PROXY_PLATFORM}/platform/ms-lifecycle-operator,image.tag=v${MILCY_VERSION},customPullSecretName=platform-pull-secret,idmEnabled=false,pkisslenabled=false,backingServices.kafka.autoCreateInstance=true,backingServices.kafka.scope=namespace,backingServices.couchbase.scope=namespace --version v${MILCY_VERSION}
+          monitoring :  true
+          monitoring_timeout: 1800
+        - release_name: couchbase
+          chart_name: docker-couchbase
+          helm_repo_url: ${THIRD_PARTY_NEXUS_REPO_URL}/docker-couchbase
+          optional_params: --set couchbasenode.replicas=0,couchbaseservice.name=${COUCHBASE_NAME} --version ${COUCHBASE_VERSION}
+          monitoring :  true
+          monitoring_timeout: 1800
+        - release_name: couchbase-service-broker
+          chart_name: couchbase-service-broker
+          helm_repo_url: ${CSB_NEXUS}
+          optional_params: --version ${CSB_VERSION} -f ${SINGLE_CI_MICROSERVICE_NAME}-exe/target/ci/csb_values.yaml
+          monitoring:  true
+          monitoring_timeout: 1800 
+        - release_name: zookeeper
+          chart_name: zookeeper-container-helm
+          helm_repo_url: ${THIRD_PARTY_NEXUS_REPO_URL}/zookeeper-container-helm
+          optional_params: --version ${ZOO_KEEPER_VERSION}
+          monitoring :  true
+          monitoring_timeout: 1800
+        - release_name: kafka
+          chart_name: kafka-container-helm
+          helm_repo_url: ${THIRD_PARTY_NEXUS_REPO_URL}/kafka-container-helm
+          optional_params: --version ${KAFKA_VERSION} -f ${SINGLE_CI_MICROSERVICE_NAME}-exe/target/ci/kafka_values.yaml
+          monitoring :  true
+          monitoring_timeout: 2500
+        - release_name: opnext-kafka-service
+          chart_name: kafka-service-broker
+          helm_repo_url: ${KSB_NEXUS}
+          optional_params: --version ${KSB_VERSION} -f ${SINGLE_CI_MICROSERVICE_NAME}-exe/target/ci/ksb_values.yaml
+          monitoring :  true
+          monitoring_timeout: 1800
+        - release_name: ${SINGLE_CI_MICROSERVICE_NAME}
+          chart_name: ${SINGLE_CI_MICROSERVICE_NAME}-exe/target/classes/helm/${SINGLE_CI_MICROSERVICE_NAME}/${SINGLE_CI_MICROSERVICE_NAME}-${SINGLE_CI_BUILD_VERSION}.tgz
+          optional_params: -f ${SINGLE_CI_MICROSERVICE_NAME}-exe/target/ci/ci-values.yaml
+          monitoring :  true
+          monitoring_timeout: 2500
+
+    Component Test:
+      condition:
+        enable: true
+        mandatory: true
+      pre_steps:
+        - display_name: "Extract configuration builder"
+          command: sh "mvn -q -gs ${MVN_CFG} dependency:unpack -pl ${SINGLE_CI_MICROSERVICE_NAME}-component-tests -DoutputDirectory=${env.WORKSPACE}"
+      maven:
+        settings_file: ${MVN_CFG}
+        variables:
+          ct_project:
+            type: value
+            value: ${SINGLE_CI_MICROSERVICE_NAME}-component-tests
+            enable: true
+          ct_profiles:
+            type: value
+            value: component_tests
+          SPRING_APPLICATION_JSON:
+            # This is an environment variable that is used by Spring to override config.
+            type: command
+            value: >-
+              return sh(returnStdout: true, script: "python3 ${env.WORKSPACE}/scripts/build-ci-configuration.py --debug --service-name ${SINGLE_CI_MICROSERVICE_NAME}").trim()
+        commands:
+          run_component_test:
+            goal: test
+            maven_options: >-
+              -B -pl ${ct_project} -P ${ct_profiles}
+              -Dservices.admin.url=http://coe-dashboard-service:8080/api/v1
+    
+      test_results:
+        enable: true
+        junit:
+          allow_empty_results: true
+          test_results:  "**/target/surefire-reports/*.xml"
+
+
+    Static Code Analysis Scan:
+      condition:
+        enable: true
+      terminate_on_failure: false
+      sonar:
+        sonarqube_environment: Sonar
+        maven:
+          settings_file: ${MVN_CFG}
+    Upload Artifacts:
+      condition:
+        branches: ["master"]
+      helm_chart:
+        nexus:
+          repository_manager_url: ${HELM_CHART_NEXUS_URL}
+          repository_credential_id: ${HELM_CHART_NEXUS_CREDENTIAL_ID}
+          repository_name: ${HELM_CHART_NEXUS_REPO_NAME}
+      container_image:
+        maven:
+          commands:
+            deploy_image:
+              goal: "-P ci mib:resource -DpushRegistry=${DOCKER_RELEASE_REGISTRY}"
+            deploy_parent:
+              enable: true
+              pom_file_path: pom.xml
+              goal: "-P ci deploy"
+              maven_options: "-B -pl ${SINGLE_CI_MICROSERVICE_NAME}-parent"
+              jvm_options: ''
+            deploy_exe:
+              enable: true
+              pom_file_path: pom.xml
+              goal: "-Pdeploy_files,ci validate deploy:deploy-file@deploy-file"
+              maven_options: "-B -pl ${SINGLE_CI_MICROSERVICE_NAME}-exe"
+              jvm_options: ''
+            deploy_api:
+              enable: true
+              pom_file_path: pom.xml
+              goal: "-Pdeploy_files,ci validate deploy:deploy-file@deploy-file"
+              maven_options: "-B -pl ${SINGLE_CI_MICROSERVICE_NAME}-api"
+              jvm_options: ''
+          settings_file:  ${MVN_CFG}
+
+
+post_actions:
+    cleanup:
+        condition:
+            enable: true
+    archive_artifacts:
+        condition:
+            enable: true
+        artifacts:
+        - artifact: "${SINGLE_CI_MICROSERVICE_NAME}-exe/target/classes/helm/**"
+          allow_empty_archive: true
+        - artifact: "${SINGLE_CI_MICROSERVICE_NAME}-exe/target/ci/*"
+          allow_empty_archive: true
+    update_ms_catalog:
+        condition:
+            enable: true
+        elastic_host: ilvpbg1938.corp.amdocs.com
+        elastic_credential_id: single_ms_ci_elastic_credentials

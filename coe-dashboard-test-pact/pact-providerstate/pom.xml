@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>coe-dashboard-test-providerstate</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <parent>
+        <groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+        <artifactId>coe-dashboard-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../coe-dashboard-parent</relativePath>
+    </parent>
+
+    <properties>
+        <argLine>--illegal-access=permit</argLine>
+    </properties>
+    
+    <dependencies>
+
+		<!--  Support for Fabric8 -->
+        <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>com.amdocs.msnext</groupId>
+            <artifactId>msnext-boot-test-starter</artifactId>
+            <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+        	<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+        	<artifactId>coe-dashboard-client-kit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-netflix-core</artifactId>
+        </dependency>
+		
+        <!-- Test using Fabric8 -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+
+        <dependency>
+        	<groupId>com.amdocs.digital.ms.coe.dashboard</groupId>
+        	<artifactId>coe-dashboard-exe</artifactId>
+        </dependency>
+
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

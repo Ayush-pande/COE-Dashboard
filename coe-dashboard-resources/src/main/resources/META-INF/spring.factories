@@ -1,0 +1,6 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.amdocs.digital.ms.coe.dashboard.resources.config.ResourceErrorHandlerConfig,\
+com.amdocs.digital.ms.coe.dashboard.resources.config.ResourceLayerConfig,\
+com.amdocs.digital.ms.coe.dashboard.resources.config.ResourceMappersConfig,\
+com.amdocs.digital.ms.coe.dashboard.resources.errorhandling.implementation.ExceptionToErrorMapper

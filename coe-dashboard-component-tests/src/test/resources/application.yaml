@@ -1,0 +1,11 @@
+couchbase:
+  providers:
+    cbProvider:
+      bucketName: 'com.amdocs.digital.ms.coe.dashboard'
+      username: ${couchbase.cluster.user}
+      password: ${couchbase.cluster.password}
+componentTest:
+  metaConfig:
+    testedService:
+      name: admin
+      basePath: /api/v1

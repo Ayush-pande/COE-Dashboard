@@ -1,0 +1,36 @@
+namespaceServiceBrokerScopeEnabled: true
+serviceBrokerSSLEnabled: false
+
+com:
+  amdocs:
+    servicebroker:
+      backendServiceConnections:
+        couchbase-service:
+          name: couchbase-service
+          description: Couchbase
+          instances_retrievable: true
+          bindings_retrievable: true
+          plan_updateable: true
+          couchbase-plan-id:
+            name: production
+            description: Couchbase cluster without permissions
+            instances_retrievable: true
+            binding_retrievable: true
+            couchbaseClusterConfigurations:
+              couchbase-service:
+                connectTimeout: 1m
+                operationTimeout: 1m
+                ramQuotaMB: 110
+                developmentMode: false
+                overrideIndex: true
+                flushEnabled: true
+                schema: http
+                clientAuthMethod: password
+                defaultBucket: default
+                clusterUrls: couchbase-service-6
+                clusterSecret: couchbase-service-broker-clusterid1-secret
+      credentials:
+        couchbase-service-broker-clusterid1-secret:
+          user: Administrator
+          pass: Administrator
+      port: 3000

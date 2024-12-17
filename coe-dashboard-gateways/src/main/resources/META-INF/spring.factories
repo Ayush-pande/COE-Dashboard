@@ -1,0 +1,8 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.amdocs.digital.ms.coe.dashboard.gateways.config.AsyncChannelsConfig,\
+com.amdocs.digital.ms.coe.dashboard.gateways.config.AsyncMessagingConfig,\
+com.amdocs.digital.ms.coe.dashboard.gateways.config.GatewayApplicationServiceConfig,\
+com.amdocs.digital.ms.coe.dashboard.gateways.config.GatewayConfig,\
+com.amdocs.digital.ms.coe.dashboard.gateways.config.GatewayErrorHandlerConfig,\
+com.amdocs.digital.ms.coe.dashboard.gateways.config.GatewayMappersConfig
